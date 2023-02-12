@@ -1,9 +1,9 @@
 import copy
 import pathlib
+import pandas
 import pandas as pd
 import os
 from config import TEST_CITY, VALIDATION_DATE, TARGET_VARIABLE, PATTERN_FOR_TARGET, VARIABLES_CONSIDERED
-from sklearn.preprocessing import MinMaxScaler
 
 
 class Preprocessing:
@@ -25,19 +25,18 @@ class Preprocessing:
         return df
 
     @staticmethod
-    def parse_dates(df):
+    def parse_dates(df: pandas.DataFrame):
         df_output = copy.deepcopy(df)
         df_output.loc[:, "date"] = pd.to_datetime(df_output[["year", "month", "day", "hour"]])
         df_output.drop(["year", "month", "day", "hour", "season"], axis=1, inplace=True)
         return df_output
 
-
     @staticmethod
-    def __select_pm_columns(df):
+    def __select_pm_columns(df: pandas.DataFrame):
         return [col for col in df.columns if str(col).startswith(PATTERN_FOR_TARGET)]
 
     @staticmethod
-    def calculate_PM(df):
+    def calculate_pm(df: pandas.DataFrame):
         pm_columns = Preprocessing.__select_pm_columns(df)
         df_output = copy.deepcopy(df)
         df_output.loc[:, TARGET_VARIABLE] = df_output[pm_columns].mean(axis=1)
@@ -45,7 +44,7 @@ class Preprocessing:
         return df_output
 
     @staticmethod
-    def filter_columns(df):
+    def filter_columns(df: pandas.DataFrame):
         df_output = copy.deepcopy(df)
         df_output = df_output[VARIABLES_CONSIDERED]
         return df_output
@@ -54,7 +53,7 @@ class Preprocessing:
         for i, file in enumerate(os.listdir(self.data_path)):
             df = self.load_data(file)
             df.loc[:, "city"] = file[:-4]
-            df = Preprocessing.calculate_PM(df)
+            df = Preprocessing.calculate_pm(df)
             df = Preprocessing.parse_dates(df)
             df = Preprocessing.filter_columns(df)
 
@@ -75,8 +74,8 @@ class Preprocessing:
         df_train = df_train_validation.loc[df_train_validation["date"] < VALIDATION_DATE]
         return df_train, df_validation, df_test
 
-
-    def standardize_datasets(self, df_train, df_validation, df_test):
+    def standardize_datasets(self, df_train: pandas.DataFrame, df_validation: pandas.DataFrame,
+                             df_test: pandas.DataFrame):
         df_train_output = copy.deepcopy(df_train)
         df_validation_output = copy.deepcopy(df_validation)
         df_test_output = copy.deepcopy(df_test)
@@ -88,7 +87,6 @@ class Preprocessing:
             if c == TARGET_VARIABLE:
                 self.__target_mean = mean
                 self.__target_stdev = stdev
-
 
             df_train_output[c] = (df_train_output[c] - mean) / stdev
             df_validation_output[c] = (df_validation_output[c] - mean) / stdev
@@ -105,4 +103,3 @@ class Preprocessing:
         df_train, df_validation, df_test = self.standardize_datasets(df_train, df_validation, df_test)
 
         return df_train, df_validation, df_test
-
