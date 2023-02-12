@@ -29,7 +29,4 @@ class PMDataset(Dataset):
         if torch.cuda.is_available():
             x = x.to(torch.device("cuda:0"))
 
-
         return x, self.y[i]
-
-
