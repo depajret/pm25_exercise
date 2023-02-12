@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from preprocess import Preprocessing
 from config import VARIABLES_CONSIDERED
 import torch.nn as nn
+from config import TARGET_VARIABLE, NUMERICAL_VARIABLES
 
 
 class Solution:
@@ -33,20 +34,20 @@ class Solution:
 
         train_dataset = PMDataset(
             df_train,
-            target="PM",
-            features=df_train.drop("PM", axis=1).columns,
+            target=TARGET_VARIABLE,
+            features=NUMERICAL_VARIABLES,
             sequence_length=self.sequence_length
         )
         validation_dataset = PMDataset(
             df_validation,
-            target="PM",
-            features=df_validation.drop("PM", axis=1).columns,
+            target=TARGET_VARIABLE,
+            features=NUMERICAL_VARIABLES,
             sequence_length=self.sequence_length
         )
         test_dataset = PMDataset(
             df_test,
-            target="PM",
-            features=df_test.drop("PM", axis=1).columns,
+            target=TARGET_VARIABLE,
+            features=NUMERICAL_VARIABLES,
             sequence_length=self.sequence_length
         )
 
