@@ -18,7 +18,8 @@ class PMLSTM(nn.Module):
             batch_first=True,
         )
 
-        self.linear = nn.Linear(in_features=self.hidden_units, out_features=1)  # fully-connected layer; it outputs 1 number
+        self.linear = nn.Linear(in_features=self.hidden_units,
+                                out_features=1)  # fully-connected layer; it outputs 1 number
 
     def forward(self, x):
         batch_size = x.shape[0]
