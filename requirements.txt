@@ -1,0 +1,4 @@
+pandas>=1.4.3
+torch>=1.13
+scikit-learn>=1.0
+matplotlib
