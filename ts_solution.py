@@ -36,7 +36,7 @@ class Solution:
         train_dataset = PMDataset(
             df_train,
             target="PM",
-            features=df_train.drop("PM", axis = 1).columns,
+            features=df_train.drop("PM", axis=1).columns,
             sequence_length=self.sequence_length
         )
         validation_dataset = PMDataset(
