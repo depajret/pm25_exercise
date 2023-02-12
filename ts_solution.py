@@ -10,10 +10,8 @@ import torch.nn as nn
 
 class Solution:
 
-    def __init__(self, dataset, model, epochs, batch_size, learning_rate, num_hidden_units, num_layers,
+    def __init__(self, epochs, batch_size, learning_rate, num_hidden_units, num_layers,
                  dropout, sequence_length):
-        self.dataset = dataset
-        self.model = model
         self.epochs = epochs
         self.batch_size = batch_size
         self.sequence_length = sequence_length
