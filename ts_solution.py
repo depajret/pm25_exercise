@@ -102,4 +102,18 @@ class Solution:
 
     def evaluate_prediction(self):
 
-        output = torch.tensor([])
+        train_output = torch.tensor([]).to(self.__device)
+        validation_output = torch.tensor([]).to(self.__device)
+        self.model.eval()
+        train_loader, validation_loader, _ = self.create_dataloaders()
+        with torch.no_grad():
+            for X, _ in train_loader:
+                y_pred = self.model(X)
+                train_output = torch.cat((train_output, y_pred), 0).to(self.__device)
+
+            for X, _ in validation_loader:
+                y_pred = self.model(X)
+                validation_output = torch.cat((validation_output, y_pred), 0).to(self.__device)
+
+        return train_output, validation_output
+
