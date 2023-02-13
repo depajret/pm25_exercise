@@ -81,24 +81,28 @@ class Preprocessing:
         df_test_output = copy.deepcopy(df_test)
 
         for c in df_train_output.columns:
-            mean = df_train[c].mean()
-            stdev = df_train[c].std()
+            if c == "city":
+                continue
+            else:
 
-            if c == TARGET_VARIABLE:
-                self.__target_mean = mean
-                self.__target_stdev = stdev
+                mean = df_train[c].mean()
+                stdev = df_train[c].std()
 
-            df_train_output[c] = (df_train_output[c] - mean) / stdev
-            df_validation_output[c] = (df_validation_output[c] - mean) / stdev
-            df_test_output[c] = (df_test_output[c] - mean) / stdev
+                if c == TARGET_VARIABLE:
+                    self.__target_mean = mean
+                    self.__target_stdev = stdev
+
+                df_train_output[c] = (df_train_output[c] - mean) / stdev
+                df_validation_output[c] = (df_validation_output[c] - mean) / stdev
+                df_test_output[c] = (df_test_output[c] - mean) / stdev
 
         return df_train_output, df_validation_output, df_test_output
 
     def preprocessing_step(self):
         df_train, df_validation, df_test = self.split_data_to_train_test_validation()
-        df_train.drop(["city", "date"], axis=1, inplace=True)
-        df_validation.drop(["city", "date"], axis=1, inplace=True)
-        df_test.drop(["city", "date"], axis=1, inplace=True)
+        df_train.drop(["date"], axis=1, inplace=True)
+        df_validation.drop(["date"], axis=1, inplace=True)
+        df_test.drop(["date"], axis=1, inplace=True)
 
         df_train, df_validation, df_test = self.standardize_datasets(df_train, df_validation, df_test)
 
