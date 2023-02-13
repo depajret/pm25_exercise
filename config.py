@@ -4,3 +4,4 @@ PATTERN_FOR_TARGET = "PM"
 TARGET_VARIABLE = "PM"
 VARIABLES_CONSIDERED = ["date", "city", "PM", "HUMI", "PRES", "TEMP", "Iws", "precipitation", "Iprec"]
 NUMERICAL_VARIABLES = ["HUMI", "PRES", "TEMP", "Iws", "precipitation", "Iprec"]
+CITIES = ["Beijing", "Chengdu", "Guangzhou", "Shanghai", "Shenyang"]
