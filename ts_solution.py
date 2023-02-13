@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from preprocess import Preprocessing
 from config import VARIABLES_CONSIDERED
 import torch.nn as nn
-from config import TARGET_VARIABLE, NUMERICAL_VARIABLES
+from config import TARGET_VARIABLE, NUMERICAL_VARIABLES, CITIES, TEST_CITY
 
 
 class Solution:
@@ -31,19 +31,31 @@ class Solution:
 
     def create_dataloaders(self, eval: bool = False):
         df_train, df_validation, df_test = self.preprocessing_stage.preprocessing_step()
+        cities = CITIES
+        train_loaders = []
+        validation_loaders = []
 
-        train_dataset = PMDataset(
-            df_train,
-            target=TARGET_VARIABLE,
-            features=NUMERICAL_VARIABLES,
-            sequence_length=self.sequence_length
-        )
-        validation_dataset = PMDataset(
-            df_validation,
-            target=TARGET_VARIABLE,
-            features=NUMERICAL_VARIABLES,
-            sequence_length=self.sequence_length
-        )
+        for city in cities:
+            if city == TEST_CITY:
+                continue
+            else:
+                train_dataset = PMDataset(
+                    df_train.loc[df_train["city"] == city, :].drop("city", axis=1),
+                    target=TARGET_VARIABLE,
+                    features=NUMERICAL_VARIABLES,
+                    sequence_length=self.sequence_length
+                )
+                validation_dataset = PMDataset(
+                    df_validation.loc[df_train["city"] == city, :].drop("city", axis=1),
+                    target=TARGET_VARIABLE,
+                    features=NUMERICAL_VARIABLES,
+                    sequence_length=self.sequence_length
+                )
+                train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=False if eval else True)
+                validation_loader = DataLoader(validation_dataset, batch_size=self.batch_size, shuffle=False)
+                train_loaders.append(train_loader)
+                validation_loaders.append(validation_loader)
+
         test_dataset = PMDataset(
             df_test,
             target=TARGET_VARIABLE,
@@ -51,11 +63,9 @@ class Solution:
             sequence_length=self.sequence_length
         )
 
-        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=False if eval else True)
-        validation_loader = DataLoader(validation_dataset, batch_size=self.batch_size, shuffle=False)
         test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
 
-        return train_loader, validation_loader, test_loader
+        return train_loaders, validation_loaders, test_loader
 
     def train_model(self):
         train_loader, _, _ = self.create_dataloaders()
