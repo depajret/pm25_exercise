@@ -46,7 +46,7 @@ class Solution:
                     sequence_length=self.sequence_length
                 )
                 validation_dataset = PMDataset(
-                    df_validation.loc[df_train["city"] == city, :].drop("city", axis=1),
+                    df_validation.loc[df_validation["city"] == city, :].drop("city", axis=1),
                     target=TARGET_VARIABLE,
                     features=NUMERICAL_VARIABLES,
                     sequence_length=self.sequence_length
@@ -68,37 +68,46 @@ class Solution:
         return train_loaders, validation_loaders, test_loader
 
     def train_model(self):
-        train_loader, _, _ = self.create_dataloaders()
-        num_batches = len(train_loader)
+        train_loaders, _, _ = self.create_dataloaders()
         total_loss = 0
+        total_num_batches = 0
         self.model.train()
 
-        for X, y in train_loader:
-            output = self.model(X)
-            loss = self.loss_function(output, y)
+        for train_loader in train_loaders:
+            num_batches = len(train_loader)
+            total_num_batches += num_batches
 
-            self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
+            for X, y in train_loader:
+                output = self.model(X)
+                loss = self.loss_function(output, y)
 
-            total_loss += loss.item()
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
 
-        avg_loss = total_loss / num_batches
+                total_loss += loss.item()
+
+        avg_loss = total_loss / total_num_batches
 
         return avg_loss
 
     def validate_model(self):
-        _, validation_loader, _ = self.create_dataloaders()
-        num_batches = len(validation_loader)
+        _, validation_loaders, _ = self.create_dataloaders()
         total_loss = 0
-
+        total_num_batches = 0
         self.model.eval()
-        with torch.no_grad():
-            for X, y in validation_loader:
-                output = self.model(X)
-                total_loss += self.loss_function(output, y).item()
 
-        avg_loss = total_loss / num_batches
+        for validation_loader in validation_loaders:
+
+            num_batches = len(validation_loader)
+            total_num_batches += num_batches
+
+            with torch.no_grad():
+                for X, y in validation_loader:
+                    output = self.model(X)
+                    total_loss += self.loss_function(output, y).item()
+
+        avg_loss = total_loss / total_num_batches
 
         return avg_loss
 
@@ -115,15 +124,19 @@ class Solution:
         train_output = torch.tensor([]).to(self.__device)
         validation_output = torch.tensor([]).to(self.__device)
         self.model.eval()
-        train_loader, validation_loader, _ = self.create_dataloaders()
-        with torch.no_grad():
-            for X, _ in train_loader:
-                y_pred = self.model(X)
-                train_output = torch.cat((train_output, y_pred), 0).to(self.__device)
+        train_loaders, validation_loaders, _ = self.create_dataloaders()
 
-            for X, _ in validation_loader:
-                y_pred = self.model(X)
-                validation_output = torch.cat((validation_output, y_pred), 0).to(self.__device)
+        with torch.no_grad():
+            for train_loader in train_loaders:
+
+                for X, _ in train_loader:
+                    y_pred = self.model(X)
+                    train_output = torch.cat((train_output, y_pred), 0).cpu().numpy()
+
+            for validation_loader in validation_loaders:
+                for X, _ in validation_loader:
+                    y_pred = self.model(X)
+                    validation_output = torch.cat((validation_output, y_pred), 0).cpu().numpy()
 
         return train_output, validation_output
 
