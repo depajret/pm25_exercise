@@ -9,6 +9,7 @@ import statsmodels.graphics.tsaplots as sgt
 from datetime import datetime
 from datetime import timedelta
 import numpy as np
+from config_garch import *
 
 
 class GARCHSolution:
@@ -52,6 +53,8 @@ class GARCHSolution:
 
         if self.stationary_variable:
             print(f"Stationary variable based on the ADF test : {self.stationary_variable}")
+            if self.force_diffs:
+                print(f"However, percentage changes of this variable will be considered later on.")
         else:
             print("You need another way of preprocessing data.")
         return None
@@ -88,8 +91,8 @@ class GARCHSolution:
             model = arch_model(df["diff"].dropna(), p=self.p, q=self.q, vol="GARCH")
         else:
             model = arch_model(df[self.stationary_variable].dropna(), p=self.p, q=self.q, vol="GARCH")
-        res = model.fit(last_obs=self.last_obs)
-        return model,res
+        res = model.fit(last_obs=self.last_obs, disp="off")
+        return model, res
 
     def forecast_and_look_for_anomalies(self):
         model, res = self.fit_garch_model()
@@ -115,10 +118,19 @@ class GARCHSolution:
         len_mag_0 = len(df_forecast.loc[df_forecast['magnitude'] == 0])
         len_mag_1 = len(df_forecast.loc[df_forecast['magnitude'] == 1])
         len_mag_2 = len(df_forecast.loc[df_forecast['magnitude'] == 2])
-        print(f"Using model GARCH({self.p},{self.q}), and trained it on the data till {self.last_obs}, \n"
-              f"we can say that in the dates that followed,\n {len_mag_0} observations were in 95% confidence interval for volatility,")
+        print(f"\n\nUsing model GARCH({self.p},{self.q}), and trained it on the data till {self.last_obs},\n"
+              f"we can say that in the dates that followed,\n{len_mag_0} observations were in 95% confidence interval for volatility,")
         if len_mag_1 > 0 and len_mag_2 > 0:
             print(f"{len_mag_1 + len_mag_0} observations were in 99% confidence interval,\n"
                   f"and only {len_mag_2} exceeded the latter interval.")
         elif len_mag_1 > 0 :
             print(f"and {len_mag_1 + len_mag_0} observations were in 99% confidence interval.")
+
+
+
+def main():
+    garch = GARCHSolution(p=GARCH_P, q=GARCH_Q, city=CITY, last_obs=LAST_OBS, pvalue=PVALUE, force_diffs=FORCE_DIFFS)
+    garch.forecast_and_look_for_anomalies()
+
+if __name__ == "__main__":
+    main()
