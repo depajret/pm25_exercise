@@ -7,6 +7,8 @@ from preprocess import Preprocessing
 from config import VARIABLES_CONSIDERED
 import torch.nn as nn
 from config import TARGET_VARIABLE, NUMERICAL_VARIABLES, CITIES, TEST_CITY
+import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error
 
 
 class Solution:
@@ -128,15 +130,75 @@ class Solution:
 
         with torch.no_grad():
             for train_loader in train_loaders:
-
                 for X, _ in train_loader:
                     y_pred = self.model(X)
-                    train_output = torch.cat((train_output, y_pred), 0).cpu().numpy()
+                    train_output = torch.cat((train_output, y_pred), 0)
 
             for validation_loader in validation_loaders:
                 for X, _ in validation_loader:
                     y_pred = self.model(X)
-                    validation_output = torch.cat((validation_output, y_pred), 0).cpu().numpy()
+                    validation_output = torch.cat((validation_output, y_pred), 0)
 
-        return train_output, validation_output
+        return train_output.cpu().numpy(), validation_output.cpu().numpy()
+
+    def test_prediction(self):
+        test_output = torch.tensor([]).to(self.__device)
+        self.model.eval()
+        _, _, test_loader = self.create_dataloaders()
+        with torch.no_grad():
+            for X, _ in test_loader:
+                y_pred = self.model(X)
+                test_output = torch.cat((test_output, y_pred), 0)
+        return test_output.cpu().numpy()
+
+    def plot_predictions_and_present_metrics(self):
+        train_output, validation_output = self.evaluate_prediction()
+        test_output = self.test_prediction()
+
+        df_train, df_validation, df_test = self.preprocessing_stage.preprocessing_step()
+        df_train["y_pred"] = train_output
+        df_validation["y_pred"] = validation_output
+        df_test["y_pred"] = test_output
+        cities = [city for city in CITIES if city != TEST_CITY]
+
+        fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(25, 10))
+        for i, city in enumerate(cities):
+            df = df_train.loc[df_train["city"] == city].reset_index()
+            axes[i].plot(df.index, df["PM"], label=city)
+            axes[i].plot(df.index, df["y_pred"], label="prediction")
+            axes[i].xaxis_date()
+            axes[i].legend()
+
+        plt.savefig("img/train_predictions.jpeg")
+        plt.close()
+
+        fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(25, 10))
+        for i, city in enumerate(cities):
+            df = df_validation.loc[df_train["city"] == city].reset_index()
+            axes[i].plot(df.index, df["PM"], label=city)
+            axes[i].plot(df.index, df["y_pred"], label="prediction")
+            axes[i].xaxis_date()
+            axes[i].legend()
+        plt.savefig("img/validation_predictions.jpeg")
+        plt.close()
+
+        df = df_test
+        plt.plot(df.index, df["PM"], label=TEST_CITY)
+        plt.plot(df.index, df["y_pred"], label="prediction")
+        plt.legend()
+        plt.savefig("img/test_predictions.jpeg")
+        plt.close()
+
+        target_mean = self.preprocessing_stage.target_mean
+        target_std = self.preprocessing_stage.target_stdev
+        print(f"MSE on the training dataset: {mean_squared_error(df_train['PM']*target_std + target_mean, df_train['y_pred']*target_std + target_mean)}\n")
+        print(
+            f"MSE on the validation dataset: {mean_squared_error(df_validation['PM'] * target_std + target_mean, df_validation['y_pred'] * target_std + target_mean)}\n")
+        print(
+            f"MSE on the test dataset: {mean_squared_error(df_test['PM'] * target_std + target_mean, df_test['y_pred'] * target_std + target_mean)}\n")
+
+        return None
+
+
+
 
