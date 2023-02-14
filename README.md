@@ -5,9 +5,9 @@
 ### Table of contents
 
 * [Setup](####Setup)
-* [Ex1](####Ex 1)
-* [Ex2a](####Ex 2a)
-* [Ex2b](####Ex 2b)
+* [Ex1](####Ex1)
+* [Ex2a](####Ex2a)
+* [Ex2b](####Ex2b)
 
 
 #### Setup
