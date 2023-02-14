@@ -1,0 +1,6 @@
+GARCH_P = 1
+GARCH_Q = 3
+CITY = "Beijing"
+FORCE_DIFFS = True
+LAST_OBS = '2014-12-31'
+PVALUE = 0.05
