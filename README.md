@@ -21,7 +21,7 @@ $ pip install -r requirements.txt
 #### Ex 1
 TBA
 
-#### Ex 2a
+#### Ex2a
 ##### GARCH volatility modelling
 
 I decided to formulate two entirely different problems
