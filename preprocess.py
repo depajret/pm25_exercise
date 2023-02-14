@@ -100,9 +100,9 @@ class Preprocessing:
 
     def preprocessing_step(self):
         df_train, df_validation, df_test = self.split_data_to_train_test_validation()
-        df_train.drop(["date"], axis=1, inplace=True)
-        df_validation.drop(["date"], axis=1, inplace=True)
-        df_test.drop(["date"], axis=1, inplace=True)
+        df_train.set_index("date", inplace=True)
+        df_validation.set_index("date", inplace=True)
+        df_test.set_index("date", inplace=True)
 
         df_train, df_validation, df_test = self.standardize_datasets(df_train, df_validation, df_test)
 
