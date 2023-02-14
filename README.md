@@ -1,13 +1,13 @@
 # pm25_exercise
-## Bartlomiej Wieczorek
+# Bartlomiej Wieczorek
 
 
-### Table of contents
+## Table of contents
 
-* [Setup](####Setup)
-* [Ex1](####Ex1)
-* [Ex2a](####Ex2a)
-* [Ex2b](####Ex2b)
+* [Setup](##Setup)
+* [Ex1](##Ex1)
+* [Ex2a](##Ex2a)
+* [Ex2b](##Ex2b)
 
 
 #### Setup
