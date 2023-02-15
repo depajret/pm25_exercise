@@ -19,7 +19,8 @@ $ pip install -r requirements.txt
 ```
 
 ## Ex 1
-TBA
+
+Simple EDA provided as the IPython notebook and the HTML file, with the outputs visible.
 
 ## Ex2a
 ### GARCH volatility modelling
