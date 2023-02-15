@@ -6,9 +6,11 @@ from torch.utils.data import DataLoader
 from preprocess import Preprocessing
 from config import VARIABLES_CONSIDERED
 import torch.nn as nn
-from config import TARGET_VARIABLE, NUMERICAL_VARIABLES, CITIES, TEST_CITY
+from config import TARGET_VARIABLE, NUMERICAL_VARIABLES, CITIES, TEST_CITY, EPOCHS, BATCH_SIZE, LEARNING_RATE, DROPOUT,\
+NUM_HIDDEN_UNITS, NUM_LAYERS, SEQUENCE_LENGTH
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error
+
 
 
 class Solution:
@@ -161,7 +163,7 @@ class Solution:
         df_test["y_pred"] = test_output
         cities = [city for city in CITIES if city != TEST_CITY]
 
-        fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(25, 10))
+        fig, axes = plt.subplots(nrows=4, ncols=1, figsize=(25, 10))
         for i, city in enumerate(cities):
             df = df_train.loc[df_train["city"] == city].reset_index()
             axes[i].plot(df.index, df["PM"], label=city)
@@ -172,9 +174,9 @@ class Solution:
         plt.savefig("img/train_predictions.jpeg")
         plt.close()
 
-        fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(25, 10))
+        fig, axes = plt.subplots(nrows=4, ncols=1, figsize=(25, 10))
         for i, city in enumerate(cities):
-            df = df_validation.loc[df_train["city"] == city].reset_index()
+            df = df_validation.loc[df_validation["city"] == city].reset_index()
             axes[i].plot(df.index, df["PM"], label=city)
             axes[i].plot(df.index, df["y_pred"], label="prediction")
             axes[i].xaxis_date()
@@ -200,5 +202,19 @@ class Solution:
         return None
 
 
+    def full_cycle(self):
+        print("Start of the training : ")
+        self.train_validation_cycle(verbose=True)
+        self.plot_predictions_and_present_metrics()
+        return None
 
 
+
+def main():
+    solution = Solution(epochs=EPOCHS, batch_size=BATCH_SIZE, learning_rate=LEARNING_RATE,
+                        num_hidden_units=NUM_HIDDEN_UNITS, num_layers=NUM_LAYERS, sequence_length=SEQUENCE_LENGTH,
+                        dropout=DROPOUT)
+    solution.full_cycle()
+
+if __name__ == "__main__":
+    main()
