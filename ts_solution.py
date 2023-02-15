@@ -176,7 +176,7 @@ class Solution:
 
         fig, axes = plt.subplots(nrows=4, ncols=1, figsize=(25, 10))
         for i, city in enumerate(cities):
-            df = df_validation.loc[df_validation["city"] == city].reset_index()
+            df = df_validation.loc[df_validation["city"] == city]
             axes[i].plot(df.index, df["PM"], label=city)
             axes[i].plot(df.index, df["y_pred"], label="prediction")
             axes[i].xaxis_date()
