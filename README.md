@@ -18,11 +18,11 @@ To run this project, clone it on your device and run:
 $ pip install -r requirements.txt
 ```
 
-#### Ex 1
+## Ex 1
 TBA
 
-#### Ex2a
-##### GARCH volatility modelling
+## Ex2a
+### GARCH volatility modelling
 
 For the second exercise, I decided to formulate two entirely different problems.
 
@@ -45,4 +45,30 @@ Running the solution :
 
 ```
 $ python garch.py
+```
+
+## Ex2b
+
+For the 2nd approach to the 2nd exercise (Problem 2b), I propose simple time series forecasting. 
+
+So - assumptions - I will use the lagged numerical features (temperature, pressure, humidity, wind speed, precipitation and cumulated precipitation) and lagged PM2.5 values to forecast present value of PM2.5.
+
+To do so, I, again, split the dataset on the train and validation sample (data till the end of 2014 will be my train sample, the rest will be the validation sample).
+
+Hovewer, this time, I use one city as an independent, test sample. It is, again, Beijing.
+
+In order to make a forecast, I decided to propose a LSTM (Long Short-Term Memory) Neural Network, which I implemented using Pytorch. As a neat feature, I made sure that the network can be trained using GPU (I have a good, old RTX 2070, so I gave it a try).
+
+Again, the hyperparameters of the model, such as batch size, number of epochs, learning rate etc., can be modified by changing the corresponding variables in the `config.py` file.
+
+One can also look at some plots in the `img` subfolder.
+
+Some things that should be added to this solution - selected seed (I forgot about it during the training, so the solution is not entirely reproducible), Early Stopping mechanism, probably the train/validation vs epochs graph, maybe some more.
+
+I must say, I'm not 100% satisfied with my forecast, as my training MSE error was really large (6864). However, on the test sample, the forecasting went kind of okay (MSE = 2841, lower than 3051 on validation sample). However, I also don't feel like it has a significant forecasting power, I probably felt to a trap that model just guesses the values around past values.
+
+Running the solution : 
+
+```
+$ python ts_solution.py
 ```
